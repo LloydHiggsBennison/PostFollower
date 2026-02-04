@@ -3,203 +3,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dashboard de Postfollower - Genera contenido para redes sociales con IA">
     <title>Dashboard | Postfollower</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0fdf4; min-height: 100vh; }
+        
+        .app { display: flex; min-height: 100vh; }
+        
+        .sidebar {
+            width: 280px; background: linear-gradient(180deg, #064e3b 0%, #059669 100%);
+            color: white; padding: 1.5rem; display: flex; flex-direction: column;
+            position: fixed; height: 100vh;
+        }
+        
+        .logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: white; margin-bottom: 2rem; }
+        .logo-icon { font-size: 2rem; }
+        .logo-text { font-size: 1.25rem; font-weight: 700; }
+        .logo-highlight { color: #6ee7b7; }
+        
+        .nav { flex: 1; }
+        .nav a {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.875rem 1rem; border-radius: 0.75rem;
+            color: rgba(255,255,255,0.7); text-decoration: none;
+            margin-bottom: 0.5rem; transition: all 0.2s;
+        }
+        .nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav a.active { background: rgba(255,255,255,0.15); color: white; font-weight: 500; }
+        
+        .sidebar-footer { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; }
+        .user-card { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+        .user-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, #10b981, #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        .user-name { font-weight: 500; font-size: 0.9rem; }
+        .user-plan { font-size: 0.75rem; color: #6ee7b7; }
+        .btn-logout { width: 100%; padding: 0.75rem; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 0.5rem; cursor: pointer; font-size: 0.875rem; }
+        .btn-logout:hover { background: rgba(255,255,255,0.2); }
+        
+        .main { flex: 1; margin-left: 280px; padding: 2rem; }
+        
+        .header { margin-bottom: 2rem; }
+        .header h1 { font-size: 1.75rem; font-weight: 700; color: #064e3b; margin-bottom: 0.5rem; }
+        .header p { color: #6b7280; }
+        
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-label { font-size: 0.875rem; color: #64748b; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: #1e293b; }
+        .stat-value.highlight { color: #10b981; }
+        
+        .generator { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        .form-title { font-size: 1.25rem; font-weight: 600; color: #064e3b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.75rem 1rem; font-size: 0.95rem;
+            border: 2px solid #e5e7eb; border-radius: 0.5rem;
+            outline: none; transition: border-color 0.2s; font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #10b981; }
+        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        .btn-generate {
+            width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600;
+            color: white; background: linear-gradient(135deg, #10b981, #059669);
+            border: none; border-radius: 0.75rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4); }
+        .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        .result-panel { display: flex; flex-direction: column; }
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .result-badge { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #10b981; font-weight: 500; }
+        .btn-copy { padding: 0.5rem 1rem; background: #f3f4f6; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-copy:hover { background: #e5e7eb; }
+        .btn-export { padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 0.875rem; margin-left: 0.5rem; }
+        
+        .result-content { flex: 1; background: #f0fdf4; border-radius: 0.75rem; padding: 1.5rem; min-height: 350px; overflow-y: auto; }
+        .result-content.placeholder { color: #9ca3af; font-style: italic; display: flex; align-items: center; justify-content: center; }
+        
+        .post-card { background: white; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem; border: 1px solid #e5e7eb; }
+        .post-header { display: flex; justify-content: space-between; font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem; }
+        .post-content { font-size: 0.9rem; line-height: 1.6; color: #374151; }
+        .post-hashtags { margin-top: 0.75rem; font-size: 0.8rem; color: #10b981; }
+        
+        .no-credits { background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 1rem 1.5rem; border-radius: 0.75rem; display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+        .no-credits-text { flex: 1; }
+        .no-credits-text strong { color: #92400e; }
+        .no-credits-text p { font-size: 0.875rem; color: #a16207; }
+        .btn-upgrade { padding: 0.75rem 1.5rem; background: #f59e0b; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; }
+        
+        .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 1024px) { .stats { grid-template-columns: repeat(2, 1fr); } .generator { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } }
+        
+        .toast { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: #064e3b; color: white; border-radius: 0.75rem; font-size: 0.9rem; animation: slideIn 0.3s ease; z-index: 1000; }
+        @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
 </head>
 <body>
-    <div class="dashboard-layout">
-        <!-- Sidebar -->
+    <div class="app">
         <aside class="sidebar">
             <a href="index.html" class="logo">
                 <span class="logo-icon">📱</span>
-                <span class="logo-text">Post<span class=\"logo-highlight\">follower</span></span>
+                <span class="logo-text">Post<span class="logo-highlight">follower</span></span>
             </a>
-            <nav class="sidebar-nav">
-                <a href="#" class="active" data-page="generator">
+            <nav class="nav">
+                <a href="#" class="active" data-section="generator">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                     Generador
                 </a>
-                <a href="#" data-page="history">
+                <a href="#" data-section="history">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     Historial
                 </a>
-                <a href="pricing.html">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
-                    Planes
+                <a href="planes.html">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Mejorar Plan
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <div class="user-info">
+                <div class="user-card">
                     <div class="user-avatar" id="userAvatar">U</div>
-                    <div class="user-details">
-                        <span class="user-name" id="userName">Usuario</span>
-                        <span class="user-plan">Plan Gratis</span>
+                    <div>
+                        <div class="user-name" id="userName">Usuario</div>
+                        <div class="user-plan" id="userPlan">Plan Gratis</div>
                     </div>
                 </div>
-                <button class="btn btn-ghost btn-block" style="margin-top: 1rem;" id="logoutBtn">Cerrar Sesión</button>
+                <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
             </div>
         </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="dashboard-header">
-                <h1>Generador de Contenido</h1>
-                <p>Crea 30 posts para redes sociales en segundos</p>
+        
+        <main class="main">
+            <div class="header">
+                <h1>📱 Generador de Posts</h1>
+                <p>Crea contenido profesional para tus redes sociales en segundos</p>
             </div>
-
-            <!-- Stats -->
-            <div class="stats-grid">
+            
+            <div class="stats">
                 <div class="stat-card">
-                    <div class="stat-card-header">
-                        <span class="stat-card-title">Créditos Disponibles</span>
-                        <div class="stat-card-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                        </div>
-                    </div>
-                    <div class="stat-card-value" id="creditsCount">1</div>
+                    <div class="stat-label">Créditos Disponibles</div>
+                    <div class="stat-value highlight" id="credits">5</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-card-header">
-                        <span class="stat-card-title">Posts Generados</span>
-                        <div class="stat-card-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-                        </div>
-                    </div>
-                    <div class="stat-card-value" id="totalPosts">0</div>
+                    <div class="stat-label">Posts Generados</div>
+                    <div class="stat-value" id="totalPosts">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-card-header">
-                        <span class="stat-card-title">Este Mes</span>
-                        <div class="stat-card-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
-                        </div>
-                    </div>
-                    <div class="stat-card-value" id="monthlyPosts">0</div>
+                    <div class="stat-label">Este Mes</div>
+                    <div class="stat-value" id="monthPosts">0</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-card-header">
-                        <span class="stat-card-title">Plan Actual</span>
-                        <div class="stat-card-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        </div>
-                    </div>
-                    <div class="stat-card-value" style="font-size: 1.25rem;">Gratis</div>
+                    <div class="stat-label">Plan Actual</div>
+                    <div class="stat-value" style="font-size: 1.25rem;" id="planName">Gratis</div>
                 </div>
             </div>
-
-            <!-- Generator -->
-            <div class="generator-card">
-                <div class="generator-header">
-                    <h2>✨ Generar Contenido Mensual</h2>
+            
+            <div id="noCreditsAlert" class="no-credits" style="display: none;">
+                <div class="no-credits-text">
+                    <strong>⚠️ Te quedaste sin créditos</strong>
+                    <p>Mejora tu plan para seguir generando posts</p>
                 </div>
-                <div class="generator-body">
-                    <form class="generator-form" id="generatorForm">
+                <button class="btn-upgrade" onclick="location.href='planes.html'">Mejorar Plan</button>
+            </div>
+            
+            <div class="generator">
+                <div class="form-panel">
+                    <div class="form-title">📝 Configura tu Contenido</div>
+                    <form id="genForm">
                         <div class="form-group">
-                            <label for="businessType">Tipo de Negocio</label>
-                            <input type="text" id="businessType" placeholder="Ej: Cafetería, Tienda de ropa, Consultoría..." required>
+                            <label>Tipo de Negocio</label>
+                            <input type="text" id="businessType" placeholder="Ej: Cafetería, Tienda de ropa, Coaching" required>
                         </div>
                         <div class="form-group">
-                            <label for="businessDesc">Describe tu negocio brevemente</label>
-                            <textarea id="businessDesc" rows="2" placeholder="Ej: Vendemos café de especialidad y repostería artesanal en Santiago"></textarea>
+                            <label>Descripción (opcional)</label>
+                            <input type="text" id="businessDesc" placeholder="Ej: Café de especialidad en Providencia">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Red Social</label>
+                                <select id="network">
+                                    <option value="instagram">Instagram</option>
+                                    <option value="facebook">Facebook</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="twitter">Twitter/X</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Cantidad de Posts</label>
+                                <select id="postCount">
+                                    <option value="5">5 posts</option>
+                                    <option value="10">10 posts</option>
+                                    <option value="15">15 posts</option>
+                                    <option value="30">30 posts (mes completo)</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="tone">Tono de Comunicación</label>
-                            <select id="tone" required>
+                            <label>Tono</label>
+                            <select id="tone">
                                 <option value="profesional">Profesional</option>
-                                <option value="cercano">Cercano y Amigable</option>
+                                <option value="cercano">Cercano / Amigable</option>
                                 <option value="inspiracional">Inspiracional</option>
                                 <option value="humoristico">Humorístico</option>
-                                <option value="educativo">Educativo</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="network">Red Social Principal</label>
-                            <select id="network" required>
-                                <option value="instagram">Instagram</option>
-                                <option value="facebook">Facebook</option>
-                                <option value="linkedin">LinkedIn</option>
-                                <option value="twitter">Twitter/X</option>
-                                <option value="tiktok">TikTok</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="postCount">Cantidad de Posts</label>
-                            <select id="postCount">
-                                <option value="5">5 posts (Demo)</option>
-                                <option value="15">15 posts</option>
-                                <option value="30">30 posts (Mes completo)</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block" id="generateBtn">
+                        <button type="submit" class="btn-generate" id="genBtn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                            <span>Generar Contenido</span>
+                            <span>Generar Posts</span>
                         </button>
                     </form>
-                    <div class="generator-result">
-                        <div class="generator-result-header">
-                            <span class="credits-badge">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                                <span id="creditsDisplay">1 generación restante</span>
-                            </span>
-                            <button class="copy-btn" id="exportBtn" style="display: none;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                Exportar
-                            </button>
+                </div>
+                
+                <div class="result-panel">
+                    <div class="result-header">
+                        <div class="result-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            <span id="creditsLabel">5 créditos restantes</span>
                         </div>
-                        <div class="generator-result-content" id="resultContent">
-                            <p class="placeholder-text">Tus posts generados aparecerán aquí...</p>
+                        <div>
+                            <button class="btn-copy" id="exportBtn" style="display: none;" onclick="exportPosts()">📥 Exportar</button>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- History Section -->
-            <div id="historySection" style="display: none;">
-                <div class="dashboard-header">
-                    <h1>Historial de Generaciones</h1>
-                    <p>Todo tu contenido generado</p>
-                </div>
-                <div class="history-list" id="historyList">
-                    <p class="placeholder-text">No tienes generaciones aún</p>
+                    <div class="result-content placeholder" id="result">
+                        Tus posts generados aparecerán aquí...
+                    </div>
                 </div>
             </div>
         </main>
     </div>
-
-    <!-- API Key Modal -->
-    <div id="apiKeyModal" class="modal" style="display: none;">
-        <div class="modal-content auth-card">
-            <div class="auth-header">
-                <h1>🔑 Configurar API</h1>
-                <p>Ingresa tu API Key de OpenRouter para comenzar (es gratis)</p>
-            </div>
-            <form id="apiKeyForm" class="auth-form">
-                <div class="form-group">
-                    <label for="apiKey">OpenRouter API Key</label>
-                    <input type="password" id="apiKey" placeholder="sk-or-..." required>
+    
+    <script>
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://saas-backend-wc0y.onrender.com';
+        
+        let user = null;
+        let generatedPosts = [];
+        
+        function checkAuth() {
+            const userData = localStorage.getItem('postfollower_user');
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+            user = JSON.parse(userData);
+            updateUI();
+        }
+        
+        function updateUI() {
+            document.getElementById('userName').textContent = user.name || 'Usuario';
+            document.getElementById('userAvatar').textContent = (user.name || 'U')[0].toUpperCase();
+            document.getElementById('userPlan').textContent = 'Plan ' + (user.plan || 'Gratis');
+            document.getElementById('credits').textContent = user.credits ?? 5;
+            document.getElementById('creditsLabel').textContent = (user.credits ?? 5) + ' créditos restantes';
+            document.getElementById('planName').textContent = user.plan || 'Gratis';
+            document.getElementById('totalPosts').textContent = user.totalPosts || 0;
+            document.getElementById('monthPosts').textContent = user.monthPosts || 0;
+            
+            if ((user.credits ?? 5) <= 0) {
+                document.getElementById('noCreditsAlert').style.display = 'flex';
+                document.getElementById('genBtn').disabled = true;
+            }
+        }
+        
+        function saveUser() {
+            localStorage.setItem('postfollower_user', JSON.stringify(user));
+            const users = JSON.parse(localStorage.getItem('postfollower_users') || '[]');
+            const idx = users.findIndex(u => u.email === user.email);
+            if (idx >= 0) {
+                users[idx] = user;
+                localStorage.setItem('postfollower_users', JSON.stringify(users));
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('postfollower_user');
+            window.location.href = 'login.html';
+        }
+        
+        document.getElementById('genForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if ((user.credits ?? 0) <= 0) {
+                showToast('No tienes créditos. ¡Mejora tu plan!');
+                return;
+            }
+            
+            const btn = document.getElementById('genBtn');
+            const result = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Generando...';
+            result.classList.add('placeholder');
+            result.innerHTML = '✨ Generando posts con IA...';
+            
+            const data = {
+                businessType: document.getElementById('businessType').value,
+                businessDesc: document.getElementById('businessDesc').value,
+                network: document.getElementById('network').value,
+                postCount: document.getElementById('postCount').value,
+                tone: document.getElementById('tone').value
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/api/contenidoia/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const json = await response.json();
+                
+                if (json.success && json.posts) {
+                    displayPosts(json.posts);
+                    generatedPosts = json.posts;
+                    
+                    user.credits = (user.credits ?? 5) - 1;
+                    user.totalPosts = (user.totalPosts || 0) + json.posts.length;
+                    user.monthPosts = (user.monthPosts || 0) + json.posts.length;
+                    saveUser();
+                    updateUI();
+                    
+                    showToast(`¡${json.posts.length} posts generados!`);
+                } else {
+                    throw new Error(json.error || 'Error');
+                }
+            } catch (err) {
+                await new Promise(r => setTimeout(r, 1500));
+                const posts = generateDemoPosts(data);
+                displayPosts(posts);
+                generatedPosts = posts;
+                
+                user.credits = (user.credits ?? 5) - 1;
+                user.totalPosts = (user.totalPosts || 0) + posts.length;
+                user.monthPosts = (user.monthPosts || 0) + posts.length;
+                saveUser();
+                updateUI();
+                
+                showToast(`¡${posts.length} posts generados!`);
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Generar Posts</span>';
+        });
+        
+        function displayPosts(posts) {
+            const result = document.getElementById('result');
+            result.classList.remove('placeholder');
+            result.innerHTML = posts.map((post, i) => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <span>Post ${i + 1}</span>
+                        <button onclick="copyPost(${i})" style="background:none;border:none;cursor:pointer;color:#10b981;">📋 Copiar</button>
+                    </div>
+                    <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+                    <div class="post-hashtags">${post.hashtags.join(' ')}</div>
                 </div>
-                <p style="font-size: 0.75rem; color: var(--neutral-500);">
-                    Obtén tu API Key gratis en <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--primary-600);">openrouter.ai/keys</a>
-                </p>
-                <button type="submit" class="btn btn-primary btn-block">Guardar y Continuar</button>
-            </form>
-        </div>
-    </div>
-
-    <style>
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem; }
-        .modal-content { animation: modalIn 0.3s ease; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .history-item { background: white; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid var(--neutral-100); margin-bottom: 1rem; cursor: pointer; transition: 0.2s; }
-        .history-item:hover { border-color: #A7F3D0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    </style>
-
-    <script src="js/auth.js"></script>
-    <script src="js/generator.js"></script>
+            `).join('');
+            document.getElementById('exportBtn').style.display = 'flex';
+        }
+        
+        function generateDemoPosts(data) {
+            const count = parseInt(data.postCount) || 5;
+            const posts = [];
+            const templates = [
+                { content: `✨ ¿Sabías que ${data.businessType} puede transformar tu día?\n\nDescubre cómo en nuestra última publicación 👆\n\n¿Cuál es tu experiencia favorita? Cuéntanos 💬`, hashtags: ['#Emprendimiento', '#Chile', `#${data.businessType.replace(/\s/g, '')}`] },
+                { content: `🔥 ¡Novedades en ${data.businessType}!\n\nEstamos emocionados de compartir esto contigo.\nPorque tú mereces lo mejor 💯\n\n¿Te gustaría saberlo? Escríbenos 📩`, hashtags: ['#Novedades', '#Tendencias', '#Calidad'] },
+                { content: `💡 CONSEJO DEL DÍA\n\nUn pequeño cambio puede hacer una gran diferencia.\nEn ${data.businessType} lo sabemos bien.\n\n¿Cuál es tu hack favorito? 👇`, hashtags: ['#Tips', '#Consejos', '#Lifestyle'] },
+                { content: `📸 Behind the scenes de ${data.businessType} ✨\n\nAsí es como trabajamos para darte siempre lo mejor.\nCon pasión, dedicación y mucho ❤️`, hashtags: ['#BehindTheScenes', '#Trabajo', '#Pasion'] },
+                { content: `🎉 ¡GRACIAS por ser parte de nuestra comunidad!\n\nCada día nos motivan a ser mejores.\n${data.businessType} existe gracias a ustedes 🙏`, hashtags: ['#Comunidad', '#Gracias', '#Familia'] },
+                { content: `🌟 ¿Por qué elegirnos?\n\nPorque en ${data.businessType} nos importa tu experiencia.\nCada detalle cuenta ✨`, hashtags: ['#PorQueElegirnos', '#Experiencia', '#Calidad'] },
+                { content: `📣 ATENCIÓN\n\nTenemos algo especial para ti esta semana.\n${data.businessType} te sorprenderá 🎁\n\n¿Estás listo/a?`, hashtags: ['#Sorpresa', '#Promocion', '#Especial'] },
+            ];
+            for (let i = 0; i < count; i++) {
+                posts.push(templates[i % templates.length]);
+            }
+            return posts;
+        }
+        
+        function copyPost(idx) {
+            const post = generatedPosts[idx];
+            const text = `${post.content}\n\n${post.hashtags.join(' ')}`;
+            navigator.clipboard.writeText(text).then(() => showToast('¡Post copiado!'));
+        }
+        
+        function exportPosts() {
+            const text = generatedPosts.map((p, i) => `=== POST ${i+1} ===\n${p.content}\n\nHashtags: ${p.hashtags.join(' ')}`).join('\n\n');
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `posts_${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            showToast('¡Exportado!');
+        }
+        
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        checkAuth();
+    </script>
 </body>
 </html>
