@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard de Postfollower - Genera contenido para redes sociales con IA">
+    <title>Dashboard | Postfollower</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">📱</span>
+                <span class="logo-text">Post<span class=\"logo-highlight\">follower</span></span>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="#" class="active" data-page="generator">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    Generador
+                </a>
+                <a href="#" data-page="history">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Historial
+                </a>
+                <a href="pricing.html">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+                    Planes
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">Usuario</span>
+                        <span class="user-plan">Plan Gratis</span>
+                    </div>
+                </div>
+                <button class="btn btn-ghost btn-block" style="margin-top: 1rem;" id="logoutBtn">Cerrar Sesión</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1>Generador de Contenido</h1>
+                <p>Crea 30 posts para redes sociales en segundos</p>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Créditos Disponibles</span>
+                        <div class="stat-card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card-value" id="creditsCount">1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Posts Generados</span>
+                        <div class="stat-card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card-value" id="totalPosts">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Este Mes</span>
+                        <div class="stat-card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card-value" id="monthlyPosts">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">Plan Actual</span>
+                        <div class="stat-card-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card-value" style="font-size: 1.25rem;">Gratis</div>
+                </div>
+            </div>
+
+            <!-- Generator -->
+            <div class="generator-card">
+                <div class="generator-header">
+                    <h2>✨ Generar Contenido Mensual</h2>
+                </div>
+                <div class="generator-body">
+                    <form class="generator-form" id="generatorForm">
+                        <div class="form-group">
+                            <label for="businessType">Tipo de Negocio</label>
+                            <input type="text" id="businessType" placeholder="Ej: Cafetería, Tienda de ropa, Consultoría..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="businessDesc">Describe tu negocio brevemente</label>
+                            <textarea id="businessDesc" rows="2" placeholder="Ej: Vendemos café de especialidad y repostería artesanal en Santiago"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="tone">Tono de Comunicación</label>
+                            <select id="tone" required>
+                                <option value="profesional">Profesional</option>
+                                <option value="cercano">Cercano y Amigable</option>
+                                <option value="inspiracional">Inspiracional</option>
+                                <option value="humoristico">Humorístico</option>
+                                <option value="educativo">Educativo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="network">Red Social Principal</label>
+                            <select id="network" required>
+                                <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="linkedin">LinkedIn</option>
+                                <option value="twitter">Twitter/X</option>
+                                <option value="tiktok">TikTok</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="postCount">Cantidad de Posts</label>
+                            <select id="postCount">
+                                <option value="5">5 posts (Demo)</option>
+                                <option value="15">15 posts</option>
+                                <option value="30">30 posts (Mes completo)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="generateBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            <span>Generar Contenido</span>
+                        </button>
+                    </form>
+                    <div class="generator-result">
+                        <div class="generator-result-header">
+                            <span class="credits-badge">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                <span id="creditsDisplay">1 generación restante</span>
+                            </span>
+                            <button class="copy-btn" id="exportBtn" style="display: none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Exportar
+                            </button>
+                        </div>
+                        <div class="generator-result-content" id="resultContent">
+                            <p class="placeholder-text">Tus posts generados aparecerán aquí...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div id="historySection" style="display: none;">
+                <div class="dashboard-header">
+                    <h1>Historial de Generaciones</h1>
+                    <p>Todo tu contenido generado</p>
+                </div>
+                <div class="history-list" id="historyList">
+                    <p class="placeholder-text">No tienes generaciones aún</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- API Key Modal -->
+    <div id="apiKeyModal" class="modal" style="display: none;">
+        <div class="modal-content auth-card">
+            <div class="auth-header">
+                <h1>🔑 Configurar API</h1>
+                <p>Ingresa tu API Key de OpenRouter para comenzar (es gratis)</p>
+            </div>
+            <form id="apiKeyForm" class="auth-form">
+                <div class="form-group">
+                    <label for="apiKey">OpenRouter API Key</label>
+                    <input type="password" id="apiKey" placeholder="sk-or-..." required>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--neutral-500);">
+                    Obtén tu API Key gratis en <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--primary-600);">openrouter.ai/keys</a>
+                </p>
+                <button type="submit" class="btn btn-primary btn-block">Guardar y Continuar</button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 1rem; }
+        .modal-content { animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .history-item { background: white; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid var(--neutral-100); margin-bottom: 1rem; cursor: pointer; transition: 0.2s; }
+        .history-item:hover { border-color: #A7F3D0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    </style>
+
+    <script src="js/auth.js"></script>
+    <script src="js/generator.js"></script>
+</body>
+</html>
