@@ -1,4 +1,4 @@
-// ContenidoIA - Main JS (Landing Page)
+// Postfollower - Main JS (Landing Page)
 document.addEventListener('DOMContentLoaded', () => {
     // Mobile menu
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -76,4 +76,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         setTimeout(typeChar, 1000);
     }
+
+    // ========================================
+    // DEMO SECTION - GENERATE POSTS
+    // ========================================
+    const demoBtn = document.getElementById('demoGenerateBtn');
+    const demoResult = document.getElementById('demoResult');
+
+    if (demoBtn && demoResult) {
+        demoBtn.addEventListener('click', async () => {
+            const businessType = document.getElementById('demoNegocio')?.value || 'Emprendimiento';
+            const tone = document.getElementById('demoTono')?.value || 'profesional';
+            const network = document.getElementById('demoRed')?.value || 'instagram';
+
+            // Loading state
+            demoBtn.disabled = true;
+            demoBtn.innerHTML = '<div class="spinner"></div> Generando...';
+            demoResult.innerHTML = '<p class="placeholder-text">✨ Generando posts con IA...</p>';
+
+            // Simulate AI generation
+            await new Promise(r => setTimeout(r, 2000));
+
+            const posts = [
+                { content: `✨ ¿Sabías que ${businessType} puede transformar tu día? Descubre cómo en nuestra última publicación 👆\n\n¿Cuál es tu experiencia favorita con nosotros? Cuéntanos en los comentarios 💬`, hashtags: ['#Emprendimiento', '#Chile', '#Calidad'] },
+                { content: `🔥 ¡Nuevo en ${businessType}!\n\nEstamos emocionados de compartir esto contigo. Porque tú mereces lo mejor 💯\n\n¿Te gustaría saberlo? Escríbenos 📩`, hashtags: ['#Novedades', '#Tendencias'] },
+                { content: `💡 CONSEJO DEL DÍA\n\nUn pequeño cambio puede hacer una gran diferencia. En ${businessType} lo sabemos bien.\n\n¿Cuál es tu hack favorito? 👇`, hashtags: ['#Tips', '#Consejos'] },
+                { content: `📸 Behind the scenes de ${businessType} ✨\n\nAsí es como trabajamos para darte siempre lo mejor. Con pasión, dedicación y mucho ❤️`, hashtags: ['#BehindTheScenes', '#Trabajo'] },
+                { content: `🎉 ¡GRACIAS por ser parte de nuestra comunidad!\n\nCada día nos motivan a ser mejores. ${businessType} existe gracias a ustedes 🙏`, hashtags: ['#Comunidad', '#Gracias'] }
+            ];
+
+            demoResult.innerHTML = posts.map((post, i) => `
+                <div style="background: rgba(255,255,255,0.1); padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.6); margin-bottom: 0.25rem;">Post ${i + 1}</div>
+                    <div style="font-size: 0.875rem; line-height: 1.6;">${post.content.replace(/\n/g, '<br>')}</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #6ee7b7;">${post.hashtags.join(' ')}</div>
+                </div>
+            `).join('');
+
+            // Reset button
+            demoBtn.disabled = false;
+            demoBtn.innerHTML = `
+                <span>Generar 5 Posts</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+            `;
+        });
+    }
 });
+
