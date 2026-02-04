@@ -341,37 +341,55 @@
                 tone: document.getElementById('tone').value
             };
             
-            let posts = [];
             try {
                 const response = await fetch(`${API_URL}/api/contenidoia/generate`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
                 const json = await response.json();
-                if (json.success && json.posts) posts = json.posts;
-                else throw new Error('API error');
+                if (!json.success || !json.posts || json.posts.length === 0) throw new Error(json.error || 'Sin respuesta');
+                
+                // Éxito - mostrar posts y descontar crédito
+                displayPosts(json.posts);
+                generatedPosts = json.posts;
+                
+                user.credits--;
+                user.totalPosts = (user.totalPosts || 0) + json.posts.length;
+                user.monthPosts = (user.monthPosts || 0) + json.posts.length;
+                saveUser();
+                updateUI();
+                
+                const history = JSON.parse(localStorage.getItem('postfollower_history') || '[]');
+                history.unshift({ ...data, posts: json.posts, date: new Date().toISOString() });
+                localStorage.setItem('postfollower_history', JSON.stringify(history.slice(0, 50)));
+                loadHistory();
+                
+                showToast(`¡${json.posts.length} posts generados con IA!`);
+                
             } catch (err) {
-                await new Promise(r => setTimeout(r, 1500));
-                posts = generateDynamicPosts(data);
+                console.error('Error API:', err);
+                result.innerHTML = `
+                    <div style="text-align:center; padding:2rem;">
+                        <p style="color:#dc2626; margin-bottom:0.75rem;">❌ Error al generar</p>
+                        <p style="color:#6b7280; font-size:0.85rem; margin-bottom:1rem;">
+                            ${err.message.includes('CORS') || err.message.includes('Failed to fetch') 
+                                ? 'El servidor no está disponible. Verifica que ALLOWED_ORIGINS esté configurado en Render.' 
+                                : err.message}
+                        </p>
+                        <button onclick="document.getElementById('genForm').dispatchEvent(new Event('submit'))" 
+                                style="padding:0.5rem 1rem; background:#10b981; color:white; border:none; border-radius:0.5rem; cursor:pointer;">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+                // NO descontar crédito si falla
             }
-            
-            displayPosts(posts);
-            generatedPosts = posts;
-            
-            user.credits--;
-            user.totalPosts = (user.totalPosts || 0) + posts.length;
-            user.monthPosts = (user.monthPosts || 0) + posts.length;
-            saveUser();
-            updateUI();
-            
-            const history = JSON.parse(localStorage.getItem('postfollower_history') || '[]');
-            history.unshift({ ...data, posts, date: new Date().toISOString() });
-            localStorage.setItem('postfollower_history', JSON.stringify(history.slice(0, 50)));
-            loadHistory();
             
             btn.disabled = user.credits <= 0;
             btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> Generar Posts';
-            showToast(`¡${posts.length} posts generados!`);
         });
         
         function displayPosts(posts) {
